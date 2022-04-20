@@ -83,12 +83,19 @@ int LedDeviceFile::close()
 
 int LedDeviceFile::write(const std::vector<ColorRgb> & ledValues)
 {
-	_file->open(QIODevice::WriteOnly);
-	for (const ColorRgb& color : ledValues)
-    {
-        _file->write(reinterpret_cast<const char*>(&color), 3);
-    }
-	_file->close();
+	if ( !_file->open(QIODevice::WriteOnly) )
+	{
+		QString errortext = QString ("(%1) %2, file: (%3)").arg(_file->error()).arg(_file->errorString(),_fileName);
+		this->setInError( errortext );
+	}
+	else
+	{
+		for (const ColorRgb& color : ledValues)
+		{
+			_file->write(reinterpret_cast<const char*>(&color), 3);
+		}
+		_file->close();
+	}
 
 	return 0;
 }
